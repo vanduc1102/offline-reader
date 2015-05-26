@@ -1,0 +1,9 @@
+body{
+	height: 100%;
+	width: 100%;
+}
+#content{
+	height: 500px;
+	border: 1px solid blue;
+	overflow: scroll;
+}
