@@ -2,37 +2,34 @@ $(function(){
 	$('input').on('click',function(){
 		$('body').append('<h1>Hello </h1>');
 	});
-	function loadPage(){
-		$('#content').load('http://thethao.vnexpress.net/photo/hinh-bong-da/cau-thu-u23-viet-nam-vui-dua-trong-be-boi-3224483.html'); 
-	}; 
-	loadPage();
-	/*
 	$.ajax({
-		url: "http://www.google.com/intl/en/chrome/assets/common/images/devices/devices-selector-pixel.jpg#.jpg",
-		type: "GET",
-		dataType: "binary",
-		processData: false,
-		success: function(result){
-			console.log("result : ", result);
-		}
+		url: "http://vnexpress.net/tin-tuc/thoi-su/thu-truong-thong-tin-truyen-thong-trung-quoc-rao-riet-lan-bien-bat-hop-phap-3225006.html"
+		,context: document.body,
+		dataType:'html'
+	}).done(function(data) {
+		var webPage = $(data);
+		var contentPart = webPage.find("div.main_content_detail");
+		var titleNews = contentPart.find("div.title_news");
+		$("#content").append(titleNews);
+		var shortIntro = contentPart.find("div.short_intro");
+		$("#content").append(shortIntro);
+		var mainContent = contentPart.find("div.fck_detail.width_common");
+		$("#content").append(mainContent);
 	});
-	var loadImage = function(){
-		var element = document.getElementById('content');
-		var xhr = new XMLHttpRequest();
-		var imageUrl = 'http://www.google.com/intl/en/chrome/assets/common/images/devices/devices-selector-pixel.jpg#.jpg';
-		xhr.open('GET',imageUrl );
-		xhr.responseType = 'blob';
-		xhr.onload = function() {
-			var img = document.createElement('img');
-			img.setAttribute('data-src', imageUrl);
-			img.className = 'icon';
-			var objURL = this._createObjectURL(xhr.response);
-			img.setAttribute('src', objURL);
-			element.appendChild(img);
-		};
-		xhr.send();
-	}
-	loadImage();
-	*/
+
+	$.ajax({
+    	url: "http://www.bloomberg.com/news/articles/2015-05-27/the-wrath-of-hank-ex-aig-ceo-greenberg-won-t-give-up-at-age-90"
+    	,context: document.body,
+    	dataType:'html'
+  	}).done(function(data) {
+    	var webPage = $(data);
+	    var contentPart = webPage.find("main#content");
+	    var titleNews = contentPart.find("span.lede-headline__highlighted").text();
+	    $("#content").append(titleNews);
+	    //var shortIntro = contentPart.find("div.short_intro");
+	    //$("#content").append(shortIntro);
+	    var mainContent = contentPart.find("section.article-body");
+	    $("#content").append(mainContent);
+  });
 	
 });
