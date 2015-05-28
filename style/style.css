@@ -3,7 +3,7 @@ body{
 	width: 100%;
 }
 #content{
-	height: 500px;
+	height : calc(100% - 185px);
 	border: 1px solid blue;
 	overflow: scroll;
 }
