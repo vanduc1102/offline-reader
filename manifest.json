@@ -4,8 +4,10 @@
   "version": "0.1",
   "minimum_chrome_version": "23",
   "icons": {
-    "16": "icon_16.png",
-    "128": "icon_128.png"
+    "16": "assets/icon_16.png",
+    "32": "assets/icon_32.png",
+    "64": "assets/icon_64.png",
+    "128": "assets/icon_128.png"
   },
   "permissions": ["storage", "alarms", "notifications", "webview", "<all_urls>"],
   "app": {
