@@ -8,33 +8,53 @@ $(function(){
 	}
 	function feedNewsByRSS(rssURL, contentTag){
 	    $.get(rssURL, function(data) {
-	    	var $XML = $(data);
-		    $XML.find("item").each(function() {
-		        var $this = $(this),
-		            item = {
-		                title:       $this.find("title").text(),
-		                link:        $this.find("link").text(),
-		                description: $this.find("description").text(),
-		                pubDate:     $this.find("pubDate").text(),
-		                author:      $this.find("author").text()
-		            };
-					$.ajax({
-						url: item.link,
-						context: document.body,
-						dataType:'html'
-					}).then(function (data){
-						var webPage = $(data);
-						$("#content").append("<h1>"+item.title+"</h1>");
-						var contentElement  = webPage.find(contentTag);				
-						var mainContent = contentElement.length > 1 ? $(contentElement.get(0)) : contentElement ;
-					    mainContent.find("img").each(function(idx){
-					    	$(this).addClass("img-responsive");
-					    });
-						$("#content").append(mainContent);
-					}, function(reason){
+	    	var $XML = $(data),
+		    items = $XML.find("item"),
+		    p = $.when(1); // empty promise
 
-					});
-		    });
+			items.each(function(index,item){
+				console.log("read at : "+index);
+			    p = p.then(function(){
+			    	console.log("read success : "+ index);
+			        return getArticle(item,contentTag);
+			    },function(){
+			    	console.log("read failure : "+ index);
+			    	return getArticle(item,contentTag);
+			    });
+			});
 		});	
 	};
+
+	function getArticle(item,contentTag) {
+
+        var $item = $(item),
+        	articleSummary = {
+	            title:       $item.find("title").text(),
+	            link:        $item.find("link").text(),
+	            description: $item.find("description").text(),
+	            pubDate:     $item.find("pubDate").text(),
+	            author:      $item.find("author").text()
+        	};
+
+        return $.ajax({
+					url: articleSummary.link,
+					context: document.body,
+					dataType:'html'
+				}).then(function (response){
+					var webPage = $(response);
+					$("#content").append("<h1>" + articleSummary.title +"</h1>");
+					//$("#content").append("<h2>" + articleSummary.description +"</h2>");
+					$("#content").append("<span>" + articleSummary.pubDate +"</span>");
+					var contentElement  = webPage.find(contentTag);				
+					var mainContent = contentElement.length > 1 ? $(contentElement.get(0)) : contentElement ;
+				    mainContent.find("img").each(function(idx){
+				    	imageElement = $(this);
+				    	imageElement.removeClass();
+				    	imageElement.addClass("img-responsive");
+				    });
+					$("#content").append(mainContent);
+				}, function(reason){
+					console.log("reason : ", reason);
+				});
+	}
 });

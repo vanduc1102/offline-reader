@@ -7,3 +7,7 @@ body{
 	border: 1px solid blue;
 	overflow: scroll;
 }
+
+.img-responsive {
+    margin: 0 auto;
+}
