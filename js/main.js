@@ -1,10 +1,9 @@
 $(function(){
+	console.log("loading");
 	var loadingButton = $('#myButton');
-	chrome.storage.local.set({ducnguyen:"hello workd"},function(){
-			console.log('set data finished');
-	});
-	chrome.storage.local.get('ducnguyen',function(data){
-			console.log("data : ", data);
+	var containerTag = $("#content");
+	chrome.storage.local.clear(function(){
+
 	});
 	for(var i = 0 ; i < PAGE_LINKS.length ; i++){
 		var languagePage = PAGE_LINKS[i];
@@ -18,7 +17,8 @@ $(function(){
 	    	var $XML = $(data),
 		    items = $XML.find("item"),
 		    p = $.when(1); // empty promise
-
+			//items.length = 2;
+			//console.log(items);
 			items.each(function(index,item){
 				console.log("read at : "+index);
 			    p = p.then(function(){
@@ -29,8 +29,44 @@ $(function(){
 			    	return getArticle(item,newsPage);
 			    });
 			});
+			
+			chrome.storage.onChanged.addListener(function(changes, namespace) {
+				console.log('onChanged recieved');
+		        for (key in changes) {
+		          	var storageChange = changes[key];
+		          	console.log('Storage key "%s" in namespace "%s" changed. ' +
+		                      'Old value was "%s", new value is "%s".',
+		                      key,
+		                      namespace,
+		                      storageChange.oldValue,
+		                      storageChange.newValue);
+		          	showContentAricle(containerTag, storageChange.newValue);
+		     	}
+		    });
+		},function (error){
+			console.log('cant read RSS cause by network');
+			chrome.storage.local.get(function(data) {
+				console.log(data);
+				for (var i = data.length - 1; i >= 0; i--) {
+					var article = data[i];
+					showContentAricle(containerTag, article);
+				};
+			});
 		});	
 	};
+
+	function showContentAricle(container, article){
+		container.append("<h1>" + article.title +"</h1>");
+		container.append("<span>" + article.pubDate +"</span>");
+		// var contentElement  = webPage.find(newsPage.contentTag);				
+		// var mainContent = contentElement.length > 1 ? $(contentElement.get(0)) : contentElement ;
+		// mainContent.find("img").each(function(idx){
+		// 	imageElement = $(this);
+		// 	imageElement.removeClass();
+		// 	imageElement.addClass("img-responsive");
+		// });
+		container.append(article.content);
+	}
 
 	function getArticle(item,newsPage) {
 				loadingButton.button('loading');
@@ -42,7 +78,7 @@ $(function(){
 	            pubDate:     $item.find("pubDate").text(),
 	            author:      $item.find("author").text()
         	};
-        
+        console.log(articleSummary);
         if(isIgnoreLink(articleSummary.link, newsPage.ignoreLinks)){
         	return;
         }
@@ -52,25 +88,17 @@ $(function(){
 					context: document.body,
 					dataType:'html'
 				}).then(function (response){
-					var key = (new Date()).getTime();
-					chrome.storage.local.set({ key: articleSummary,value: response}, function() {
-  					console.log("Secret message saved : ");
-  					chrome.storage.local.get({key: articleSummary}, function(data) {
-  							console.log(data);
-								var webPage = $(data);
-								$("#content").append("<h1>" + articleSummary.title +"</h1>");
-								$("#content").append("<span>" + articleSummary.pubDate +"</span>");
-								var contentElement  = webPage.find(newsPage.contentTag);				
-								var mainContent = contentElement.length > 1 ? $(contentElement.get(0)) : contentElement ;
-								mainContent.find("img").each(function(idx){
-									imageElement = $(this);
-									imageElement.removeClass();
-									imageElement.addClass("img-responsive");
-								});
-								$("#content").append(mainContent);
-								loadingButton.button('reset');
-							});
-					}); 
+					var key = getOnlyAphalNumbericString(articleSummary.link);
+					console.log('set value with key : '+ key);
+					console.log("response : ",response.length);
+					var webPage = $(response);
+					var content  = webPage.find(newsPage.contentTag).text();articleSummary
+					articleSummary['content'] = content;
+					var objectKeyValue = {};
+					objectKeyValue[key] = articleSummary;
+					chrome.storage.local.set(objectKeyValue, function() {
+  						
+					});
 					
 				}, function(reason){
 					console.log("reason : ", reason);
@@ -85,5 +113,9 @@ $(function(){
 			}
 		}
 		return false;		
+	}
+	
+	function getOnlyAphalNumbericString(str){
+		return str.replace(/[^a-zA-Z0-9]/g, "");
 	}
 });
